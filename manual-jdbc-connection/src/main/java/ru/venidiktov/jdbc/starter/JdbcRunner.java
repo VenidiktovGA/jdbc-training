@@ -4,9 +4,8 @@ import java.sql.SQLException;
 import ru.venidiktov.jdbc.starter.util.ConnectionManager;
 
 
-public class JdbcRunner
-{
-    public static void main( String[] args ) throws SQLException {
+public class JdbcRunner {
+    public static void main(String[] args) throws SQLException {
         /**
          * Из DriverManger мы можем получить объект Connection.
          * Connection - представляет из себя соединение с базой данных.
@@ -21,9 +20,15 @@ public class JdbcRunner
          * prepareCall() - вызов хранимых процедур (редко используется)
          * prepareStatement() - для создания запросов с параметрами, например поиск по id где id в запрос можно подставить в приложении
          */
-        try (var connection = ConnectionManager.getConnection()) {
+        String sql = """
+                CREATE TABLE sugar(id INT)""";
+        try (var connection = ConnectionManager.getConnection();
+             var statement = connection.createStatement()) {
             System.out.println("По умолчанию в postgres уровень изоляции транзакций \"read committed\" = цифра 2!");
             System.out.println(connection.getTransactionIsolation());
+
+            var executeResult = statement.execute(sql);
+            System.out.println("Запрос выполнен, вернул %s".formatted(executeResult));
         }
     }
 }
