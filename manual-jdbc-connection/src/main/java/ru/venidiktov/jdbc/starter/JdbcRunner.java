@@ -21,14 +21,15 @@ public class JdbcRunner {
          * prepareStatement() - для создания запросов с параметрами, например поиск по id где id в запрос можно подставить в приложении
          */
         String sql = """
-                CREATE TABLE sugar(id INT)""";
+                INSERT INTO train (name) values ('hogwarts express');
+                INSERT INTO train (name) values ('hogwarts express')""";
         try (var connection = ConnectionManager.getConnection();
              var statement = connection.createStatement()) {
             System.out.println("По умолчанию в postgres уровень изоляции транзакций \"read committed\" = цифра 2!");
             System.out.println(connection.getTransactionIsolation());
 
-            var executeResult = statement.execute(sql);
-            System.out.println("Запрос выполнен, вернул %s".formatted(executeResult));
+            var executeResult = statement.executeUpdate(sql);
+            System.out.println("Количество затронутых строк = %s".formatted(executeResult));
         }
     }
 }
