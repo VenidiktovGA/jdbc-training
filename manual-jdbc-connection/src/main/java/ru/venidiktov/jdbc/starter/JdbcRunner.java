@@ -1,6 +1,7 @@
 package ru.venidiktov.jdbc.starter;
 
 import java.sql.SQLException;
+import java.util.UUID;
 import ru.venidiktov.jdbc.starter.util.ConnectionManager;
 
 
@@ -21,15 +22,19 @@ public class JdbcRunner {
          * prepareStatement() - для создания запросов с параметрами, например поиск по id где id в запрос можно подставить в приложении
          */
         String sql = """
-                INSERT INTO train (name) values ('hogwarts express');
-                INSERT INTO train (name) values ('hogwarts express')""";
+                select * from train""";
         try (var connection = ConnectionManager.getConnection();
              var statement = connection.createStatement()) {
             System.out.println("По умолчанию в postgres уровень изоляции транзакций \"read committed\" = цифра 2!");
             System.out.println(connection.getTransactionIsolation());
 
-            var executeResult = statement.executeUpdate(sql);
-            System.out.println("Количество затронутых строк = %s".formatted(executeResult));
+            var executeResult = statement.executeQuery(sql); // ResultSet автоматически закроется когда закроется statement создавший его
+            while(executeResult.next()) { // До вызова метода next() нельзя получить данные из ResultSet
+                System.out.println("Поезд с id: '%s' называется '%s'".formatted(
+                        executeResult.getObject("id", UUID.class),
+                        executeResult.getString("name"))
+                );
+            }
         }
     }
 }
