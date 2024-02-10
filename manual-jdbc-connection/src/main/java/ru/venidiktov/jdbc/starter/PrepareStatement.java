@@ -7,7 +7,7 @@ import ru.venidiktov.jdbc.starter.util.ConnectionManager;
 /**
  * PrepareStatement позволяет избежать sql инъекций
  */
-public class JdbcRunnerPrepareStatement {
+public class PrepareStatement {
     public static void main(String[] args) throws SQLException {
         String sql = "select * from train where name = ?"; // Знак ? обозначает места куда должны быть подставлены значения
         try (var connection = ConnectionManager.getConnection();

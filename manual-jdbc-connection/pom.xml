@@ -6,7 +6,7 @@
         <artifactId>jdbc-training</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-e
+
     <artifactId>manual-jdbc-connection</artifactId>
     <packaging>jar</packaging>
 
@@ -16,4 +16,17 @@ e
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -1,6 +1,7 @@
 version: "3.9"
 services:
   postgres:
+    container_name: 'jdbc-training-database'
     image: postgres:16
     environment:
       POSTGRES_DB: "train_station"
@@ -8,3 +9,4 @@ services:
       POSTGRES_PASSWORD: "postgres"
     ports:
       - "5447:5432"
+    command: [ "postgres", "-c", "log_statement=all" ] # Run postgres and log all queries
