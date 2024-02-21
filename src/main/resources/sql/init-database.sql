@@ -13,4 +13,4 @@ CREATE TABLE train (
 );
 
 INSERT INTO machinist (name) values ('Rubeus Hagrid');
-INSERT INTO train (name, machinist_id) values ('hogwarts express', SELECT id FROM machinist where name = 'Rubeus Hagrid');
+INSERT INTO train (name, machinist_id) SELECT 'hogwarts express', id FROM machinist where name = 'Rubeus Hagrid';
