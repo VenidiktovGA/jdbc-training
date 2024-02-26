@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
-import ru.venidiktov.jdbc.starter.util.ConnectionManager;
+import ru.venidiktov.jdbc.starter.util.MyConnectionManager;
 
 /**
  * BLOB (Binary Large Object) - тип данных предназначен для хранение больших бинарных данных,
@@ -18,7 +18,7 @@ public class BlobInsertForPostgreSQLEx {
     public static void main(String[] args) throws SQLException, IOException {
 
         String insertTrainSql = "INSERT INTO train (name, image) values(?, ?)";
-        try (var connection = ConnectionManager.getConnection();
+        try (var connection = MyConnectionManager.getConnection();
              var prepareStatement = connection.prepareStatement(insertTrainSql)) {
 
             /**

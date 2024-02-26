@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.UUID;
-import ru.venidiktov.jdbc.starter.util.ConnectionManager;
+import ru.venidiktov.jdbc.starter.util.MyConnectionManager;
 
 /**
  * Пакетное обновление позволяет послать 1 запрос базе данных в котором будет вставляться или обновляться много записей например 1000,
@@ -22,7 +22,7 @@ public class BatchEx {
         Connection connection = null; // Должна быть видима в блока catch поэтому try with resources не подходит
         Statement statement = null; // Statement позволяет делать Batch, PreparedStatement не позволяет делать Batch
         try {
-            connection = ConnectionManager.getConnection();
+            connection = MyConnectionManager.getConnection();
             connection.setAutoCommit(false); // Убираем AutoCommit режим
 
             statement = connection.createStatement();

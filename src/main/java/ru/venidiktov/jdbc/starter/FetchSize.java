@@ -2,7 +2,7 @@ package ru.venidiktov.jdbc.starter;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import ru.venidiktov.jdbc.starter.util.ConnectionManager;
+import ru.venidiktov.jdbc.starter.util.MyConnectionManager;
 
 /**
  * FetchSize параметр определяющий максимальное количество записей которое будет изыматься по очереди из выборки возникшей в результате выполнении запроса в БД
@@ -13,7 +13,7 @@ import ru.venidiktov.jdbc.starter.util.ConnectionManager;
 public class FetchSize {
     public static void main(String[] args) throws SQLException {
         String sql = "select * from train where name = ?";
-        try (var connection = ConnectionManager.getConnection();
+        try (var connection = MyConnectionManager.getConnection();
              var preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setFetchSize(2); // FetchSize указывается для каждого запроса
             preparedStatement.setQueryTimeout(2); // Максимальное количество секунд ожидания перед закрытием соединения если ответ не получен!

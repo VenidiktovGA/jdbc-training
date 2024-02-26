@@ -2,7 +2,7 @@ package ru.venidiktov.jdbc.starter;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import ru.venidiktov.jdbc.starter.util.ConnectionManager;
+import ru.venidiktov.jdbc.starter.util.MyConnectionManager;
 
 /**
  * При подключении к базе данных приложение видит мета данные, такие как:
@@ -17,7 +17,7 @@ public class MetaData {
          * Для того что бы получить мета данные не нужно делать запросов к базе данных,
          * достаточно иметь соединение с базой данных!
          */
-        try (var connection = ConnectionManager.getConnection()) {
+        try (var connection = MyConnectionManager.getConnection()) {
             DatabaseMetaData metaData = connection.getMetaData();
 
             var catalogs = metaData.getCatalogs();

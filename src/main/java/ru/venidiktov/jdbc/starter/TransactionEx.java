@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
-import ru.venidiktov.jdbc.starter.util.ConnectionManager;
+import ru.venidiktov.jdbc.starter.util.MyConnectionManager;
 
 /**
  * Транзакция - это неделимая атомарна единица работы в рамках соединения с базой данных
@@ -20,7 +20,7 @@ public class TransactionEx {
         PreparedStatement deleteTrain = null; // Должна быть видима в блока catch поэтому try with resources не подходит
         PreparedStatement deleteMachinist = null; // Должна быть видима в блока catch поэтому try with resources не подходит
         try {
-            connection = ConnectionManager.getConnection();
+            connection = MyConnectionManager.getConnection();
             deleteTrain = connection.prepareStatement(deleteTrainSql);
             deleteMachinist = connection.prepareStatement(deleteMachinistSql);
             var machinistId = UUID.fromString("4b7a8ba8-6d34-49fc-a81c-1c8ab0d34b96");

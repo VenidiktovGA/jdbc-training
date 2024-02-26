@@ -1,7 +1,7 @@
 package ru.venidiktov.jdbc.starter;
 
 import java.sql.SQLException;
-import ru.venidiktov.jdbc.starter.util.ConnectionManager;
+import ru.venidiktov.jdbc.starter.util.MyConnectionManager;
 
 public class PrepareStatementInsert {
 
@@ -23,7 +23,7 @@ public class PrepareStatementInsert {
         String sql = """
                 INSERT INTO train (name) values ('hogwarts express');
                 INSERT INTO train (name) values ('hogwarts express')""";
-        try (var connection = ConnectionManager.getConnection();
+        try (var connection = MyConnectionManager.getConnection();
              var statement = connection.createStatement()) {
             System.out.println("По умолчанию в postgres уровень изоляции транзакций \"read committed\" = цифра 2!");
             System.out.println(connection.getTransactionIsolation());

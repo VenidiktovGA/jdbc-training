@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
 import java.util.UUID;
-import ru.venidiktov.jdbc.starter.util.ConnectionManager;
+import ru.venidiktov.jdbc.starter.util.MyConnectionManager;
 
 /**
  * BLOB (Binary Large Object) - тип данных предназначен для хранение больших бинарных данных,
@@ -20,7 +20,7 @@ public class BlobSelectForPostgreSQLEx {
     public static void main(String[] args) throws SQLException, IOException {
 
         String selectTrainSql = "SELECT image FROM train where id = ?";
-        try (var connection = ConnectionManager.getConnection();
+        try (var connection = MyConnectionManager.getConnection();
              var prepareStatement = connection.prepareStatement(selectTrainSql)) {
 
             prepareStatement.setObject(1, UUID.fromString("ff270f0c-c961-4be9-a4be-e642a55f4d60"));

@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import ru.venidiktov.jdbc.starter.util.ConnectionManager;
+import ru.venidiktov.jdbc.starter.util.MyConnectionManager;
 
 /**
  * BLOB (Binary Large Object) - тип данных предназначен для хранение больших бинарных данных,
@@ -23,7 +23,7 @@ public class BlobInsertExceptPostgreSQLEx {
         Connection connection = null;
         PreparedStatement prepareStatement = null;
         try {
-            connection = ConnectionManager.getConnection();
+            connection = MyConnectionManager.getConnection();
             prepareStatement = connection.prepareStatement(insertTrainSql);
             connection.setAutoCommit(false); // Убираем AutoCommit режим
 

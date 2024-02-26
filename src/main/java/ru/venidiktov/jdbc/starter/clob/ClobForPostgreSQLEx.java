@@ -2,7 +2,7 @@ package ru.venidiktov.jdbc.starter.clob;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import ru.venidiktov.jdbc.starter.util.ConnectionManager;
+import ru.venidiktov.jdbc.starter.util.MyConnectionManager;
 
 /**
  * BLOB (Binary Large Object) - тип данных предназначен для хранение больших бинарных данных,
@@ -16,7 +16,7 @@ public class ClobForPostgreSQLEx {
     public static void main(String[] args) throws SQLException, IOException {
 
         String insertTrainSql = "INSERT INTO train (name, image) values(?, ?)";
-        try (var connection = ConnectionManager.getConnection();
+        try (var connection = MyConnectionManager.getConnection();
              var prepareStatement = connection.prepareStatement(insertTrainSql)) {
 
             /**
