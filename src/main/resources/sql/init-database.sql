@@ -9,7 +9,8 @@ CREATE TABLE machinist(
 CREATE TABLE train (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR NOT NULL,
-    machinist_id UUID references machinist(id)
+    machinist_id UUID references machinist(id),
+    image bytea
 );
 
 INSERT INTO machinist (name) values ('Rubeus Hagrid');
