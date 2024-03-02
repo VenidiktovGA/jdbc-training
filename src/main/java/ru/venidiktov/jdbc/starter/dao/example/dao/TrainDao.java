@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.SneakyThrows;
+import ru.venidiktov.jdbc.starter.dao.example.dao.dto.TrainFilter;
 import ru.venidiktov.jdbc.starter.dao.example.entity.Train;
 import ru.venidiktov.jdbc.starter.dao.example.exception.DaoException;
 import ru.venidiktov.jdbc.starter.util.MyConnectionPool;
@@ -57,6 +58,48 @@ public enum TrainDao {
         } catch (SQLException e) {
             throw new DaoException(e); // Мы же не хотим в сервисах обрабатывать SQLException
         }
+    }
+
+    /**
+     * Просто заметка, для более детального понимания проблемы нужно вникнуть в проблему и ее решения
+     * Проблема выбора нужного количества строк используя offset в том что база данных прежде чем найти нужное количество
+     * строк начиная с требуемого смещения пройдет по всем строкам до начала смещения, например мы хотим 20 записей (limit)
+     * сдвинутых на 1000 (offset) база данных последовательно пройдет по 1000 записей прочитает их пропустит и только потом возьмет
+     * 20, индекс при этом использоваться не будет просто последовательное сканирование.
+     * Как хак можно решить это убрав offset и использую where по id, где id = необходимому смещению, но тут надо разобраться будет ли это надежно!!!!
+     */
+    public List<Train> findAll(TrainFilter filter) {
+        List<Object> parameters = new ArrayList<>();
+        List<String> whereSql = new ArrayList<>();
+        String limitOffset = " LIMIT ? OFFSET ?";
+        if (filter.name() != null) {
+            whereSql.add("name LIKE ?");
+            parameters.add("%" + filter.name() + "%");
+        }
+        parameters.add(filter.limit());
+        parameters.add(filter.offset());
+        String where = limitOffset;
+        if (!whereSql.isEmpty()) {
+            where = whereSql.stream().collect(joining(" AND ", " WHERE ", limitOffset));
+        }
+        var sql = SELECT_ALL_TRAIN + where;
+        var trains = new ArrayList<Train>();
+
+        try (var connection = MyConnectionPool.getConnectionFromPool();
+             var preparedStatement = connection.prepareStatement(sql)) {
+            for (int i = 0; i < parameters.size(); i++) {
+                preparedStatement.setObject(i + 1, parameters.get(i)); // Удобно добавлять параметры фильтра, даже если добавятся новые параметры
+            }
+            System.out.println(preparedStatement);
+            var resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                trains.add(buildTrain(resultSet));
+            }
+            return trains;
+        } catch (SQLException e) {
+            throw new DaoException(e); // Мы же не хотим в сервисах обрабатывать SQLException
+        }
+
     }
 
     public Train create(Train train) {

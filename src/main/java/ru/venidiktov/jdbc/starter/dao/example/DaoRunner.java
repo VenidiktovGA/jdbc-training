@@ -3,6 +3,7 @@ package ru.venidiktov.jdbc.starter.dao.example;
 import java.io.IOException;
 import java.sql.SQLException;
 import ru.venidiktov.jdbc.starter.dao.example.dao.TrainDao;
+import ru.venidiktov.jdbc.starter.dao.example.dao.dto.TrainFilter;
 import ru.venidiktov.jdbc.starter.dao.example.entity.Train;
 
 /**
@@ -28,5 +29,10 @@ public class DaoRunner {
         var trains = trainDao.findAll();
         System.out.println("Все поезда из базы");
         trains.stream().forEach(System.out::println);
+
+        var filter = new TrainFilter(3, 0, "hogwarts");
+        var trainsAfterFiltering = trainDao.findAll(filter);
+        System.out.println("Поезда после поиска по фильтру - %s".formatted(filter));
+        trainsAfterFiltering.stream().forEach(System.out::println);
     }
 }
