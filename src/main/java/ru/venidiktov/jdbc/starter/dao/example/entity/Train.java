@@ -25,7 +25,7 @@ public class Train {
 
     private String name;
 
-    private UUID machinistId; // При использовании ORM тут будет сама entity Machinist, мы сделаем просто id
+    private Machinist machinist; // При использовании ORM тут будет сама entity Machinist, мы сделаем просто id
 
     private byte[] image;
 
@@ -34,7 +34,7 @@ public class Train {
         return "Train{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", machinistId=" + machinistId +
+                ", machinist=" + machinist +
                 ", image=" + (image == null ? "null" : "exist") +
                 '}';
     }

@@ -1,4 +1,4 @@
-package ru.venidiktov.jdbc.starter.dao.example.dao.dto;
+package ru.venidiktov.jdbc.starter.dao.example.dto;
 
 /**
  * Данная DTO представляет из себя данные для примитивной пагинации

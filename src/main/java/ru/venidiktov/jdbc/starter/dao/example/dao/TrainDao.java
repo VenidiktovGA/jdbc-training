@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import static java.util.stream.Collectors.joining;
 import lombok.SneakyThrows;
-import ru.venidiktov.jdbc.starter.dao.example.dao.dto.TrainFilter;
+import ru.venidiktov.jdbc.starter.dao.example.dto.TrainFilter;
+import ru.venidiktov.jdbc.starter.dao.example.entity.Machinist;
 import ru.venidiktov.jdbc.starter.dao.example.entity.Train;
 import ru.venidiktov.jdbc.starter.dao.example.exception.DaoException;
 import ru.venidiktov.jdbc.starter.util.MyConnectionPool;
@@ -21,15 +23,21 @@ import ru.venidiktov.jdbc.starter.util.MyConnectionPool;
  * Не следует делать класс DAO final так как ORM framwork'и очень часто делают proxy на наши классы
  */
 //@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public enum TrainDao {
+public enum TrainDao implements Dao<UUID, Train> {
     INSTANCE;
 
     private static final String DELETE_TRAIN = "DELETE FROM train WHERE id = ?";
     private static final String INSERT_TRAIN = "INSERT INTO train (name, machinist_id, image) values(?, ?, ?)";
     private static final String UPDATE_TRAIN = "UPDATE train SET name = ?, machinist_id = ?, image = ? where id = ?";
-    private static final String SELECT_ALL_TRAIN = "SELECT id, name, machinist_id, image from train";
-    private static final String SELECT_TRAIN_BY_ID = SELECT_ALL_TRAIN + " where id = ?";
+    /**
+     * Первый вариант достать связную сущность при поиске родительской приджойнить ее
+     * Второй вариант использовать Dao этой сущности и найти ее отдельным запросом
+     */
+    private static final String SELECT_ALL_TRAIN = """
+            SELECT t.id, t.name, t.machinist_id, t.image, m.id, m.name AS machinist_name from train t LEFT JOIN machinist m ON t.machinist_id = m.id""";
+    private static final String SELECT_TRAIN_BY_ID = SELECT_ALL_TRAIN + " WHERE t.id = ?";
 
+    @Override
     public Optional<Train> findById(UUID id) {
         try (var connection = MyConnectionPool.getConnectionFromPool();
              var preparedStatement = connection.prepareStatement(SELECT_TRAIN_BY_ID)) {
@@ -45,6 +53,7 @@ public enum TrainDao {
         }
     }
 
+    @Override
     public List<Train> findAll() {
         try (var connection = MyConnectionPool.getConnectionFromPool();
              var preparedStatement = connection.prepareStatement(SELECT_ALL_TRAIN)) {
@@ -73,7 +82,7 @@ public enum TrainDao {
         List<String> whereSql = new ArrayList<>();
         String limitOffset = " LIMIT ? OFFSET ?";
         if (filter.name() != null) {
-            whereSql.add("name LIKE ?");
+            whereSql.add("t.name LIKE ?");
             parameters.add("%" + filter.name() + "%");
         }
         parameters.add(filter.limit());
@@ -102,11 +111,12 @@ public enum TrainDao {
 
     }
 
+    @Override
     public Train create(Train train) {
         try (var connection = MyConnectionPool.getConnectionFromPool();
              var preparedStatement = connection.prepareStatement(INSERT_TRAIN, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, train.getName());
-            preparedStatement.setObject(2, train.getMachinistId());
+            preparedStatement.setObject(2, train.getMachinist().getId());
             preparedStatement.setBytes(3, train.getImage());
             preparedStatement.executeUpdate();
             var generatedKeys = preparedStatement.getGeneratedKeys();
@@ -123,18 +133,20 @@ public enum TrainDao {
     /**
      * Можно перехватить исключение через @SneakyThrows, но там выкинется throw Lombok.sneakyThrow(t);
      */
+    @Override
     @SneakyThrows(SQLException.class) // Мы же не хотим в сервисах обрабатывать SQLException
     public void update(Train train) {
         try (var connection = MyConnectionPool.getConnectionFromPool();
              var preparedStatement = connection.prepareStatement(UPDATE_TRAIN)) {
             preparedStatement.setString(1, train.getName());
-            preparedStatement.setObject(2, train.getMachinistId());
+            preparedStatement.setObject(2, train.getMachinist().getId());
             preparedStatement.setBytes(3, train.getImage());
             preparedStatement.setObject(4, train.getId());
             preparedStatement.executeUpdate();
         }
     }
 
+    @Override
     public boolean delete(UUID id) {
         try (var connection = MyConnectionPool.getConnectionFromPool();
              var preparedStatement = connection.prepareStatement(DELETE_TRAIN)) {
@@ -146,9 +158,20 @@ public enum TrainDao {
     }
 
     private Train buildTrain(ResultSet resultSet) throws SQLException {
+        var machinist = Machinist.builder().id((UUID) resultSet.getObject("machinist_id"))
+                .name(resultSet.getString("machinist_name")).build();
         return Train.builder().id((UUID) resultSet.getObject("id"))
                 .name(resultSet.getString("name"))
-                .machinistId((UUID) resultSet.getObject("machinist_id"))
+                /**
+                 * !Если заинжектить в TrainDao класс MachinistDao, то можно достать сущность machinist вторым способом
+                 * вот так machinistDao.findById((UUID) resultSet.getObject("machinist_id"))!
+                 * в описанном подходе есть проблема что соединение с БД в методе получения machimistDal.findById
+                 * запрашивается заново (Можно исчерпать соединения, поймать Dead lock) в реальных приложения соединение
+                 * открывается на уровне сервиса через АОП, можно это сделать через thread local переменных или создать
+                 * findById который принимает вторым аргументом connection (принимаем и не закрываем)
+                 * Будет это выглядеть вот так machinistDao.findById((UUID) resultSet.getObject("machinist_id"), resultState.getStatement().getConnection())
+                 */
+                .machinist(machinist)
                 .image(resultSet.getBytes("image")).build();
     }
 
